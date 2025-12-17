@@ -39,28 +39,54 @@ now() {
   s2cs "$t"
 }
 
+do_scroll_down() {
+  printf '\n%.0s' $(eval echo "{1..$len}")
+  off=$RANDOM
+  for ((i=1;i<=$len;i++)) ;do
+    tput cuu $((i-1))
+    printf "%s\n" "${text[@]:$((len-i))}" |lolcat offset=$off
+    off+=-10
+    sleep $delay
+  done
+  tput cuu $len
+}
+
+do_scroll_up() {
+  printf '\n%.0s' $(eval echo "{1..$len}")
+  for ((i=1;i<=$len;i++)) ;do
+    tput cuu $i
+    printf "%s\n" "${text[@]:0:$i}" |lolcat offset=$off
+    off+=-10
+    sleep $delay
+  done
+  tput cuu $len
+}
+
 do_logo() {
   typeset text twidth nspaces spaces timeout=$(s2cs "$1") delay="$2"
-  typeset -i off=$RANDOM i=10
+  typeset -i off=$RANDOM
   shift 2
   mapfile -t text                     # put logo in array
+  len="${#text[@]}"
   trap 'tput cnorm' EXIT              # restore cursor at exit
   tput civis                          # hide cursor
-  printf "%s\n" "${text[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
   stime=$(now)
+  $scroll && do_scroll_up
+  printf "%s\n" "${text[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
   end=$(($stime+$timeout))
   while [ $(now) -le $end ];do       # anim colors changing rainbow offset
     sleep $delay
-    tput cuu ${#text[@]}              # cursor up nb logo lines
-    printf "%s\n" "${text[@]}" |lolcat freq=0.15 spread=2.0 offset=$((off-i)) "$@"
-    i=$((i+10))
+    off+=-10
+    tput cuu $len              # cursor up nb logo lines
+    printf "%s\n" "${text[@]}" |lolcat freq=0.15 spread=2.0 offset=$((off)) "$@"
   done
 }
 
 usage() {
-  printf '\033]?7l'
-  echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-F] [figletopts] [<message>] [lolcatopts]
+  scroll=false
+  echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S] [-F] [figletopts] [<message>] [lolcatopts]
 
+    -S            : Disable start anim scrolling up
     -F            : Display <message> with all fonts in <fontdir>
     -t <tmoutsec> : animation duration (default 2.0)
     -s <sleepsec> : sleep between frales (default 0.1)
@@ -73,22 +99,23 @@ usage() {
       spread=<spread> : default 2.0
       freq=<freq>     : default 0.15
 " |fold -w $width |do_logo 0.5 0.1
-  printf '\033]?7h'
   exit 1
 }
 
 timeout=2.0
 delay=0.1
 allfonts=false
+scroll=true
 width=$(tput cols)
 fontdir=$(figlet -I2 2>/dev/null)
 figargs=()
-while getopts ":t:s:d:f:lrFh" opt; do
+while getopts ":t:s:d:f:lrSFh" opt; do
   case "$opt" in
     t) timeout="$OPTARG";;
     s) delay="$OPTARG";;
     l|r) figargs+=("-$opt");;
     F) allfonts=true;;
+    S) scroll=false;;
     f|d) figargs+=(-"$opt" "$OPTARG");fontdir="$OPTARG";;
     h) usage;;
     :) echo "Option -$OPTARG requires an argument"; usage ;;
