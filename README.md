@@ -1,8 +1,8 @@
 # neonfiglet
 
-Fun figlet banners with animated rainbow
+Fun banners with animated scroll / rainbow
 
-![neonfiglet2](https://github.com/user-attachments/assets/9149c605-ee19-4c04-98ee-824064a4e9de)
+![neonfiglet3](https://github.com/user-attachments/assets/8957fa59-8cfd-455d-b055-226e9adad35e)
 
 ## pre-requisite
 
