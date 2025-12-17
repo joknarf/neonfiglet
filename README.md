@@ -1,3 +1,3 @@
 # neonfiglet
 
-![neonfiglet](https://github.com/user-attachments/assets/7ca52622-873f-4c92-80aa-fddd8c0d2afe)
+![neonfiglet2](https://github.com/user-attachments/assets/9149c605-ee19-4c04-98ee-824064a4e9de)
