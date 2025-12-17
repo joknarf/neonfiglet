@@ -86,8 +86,8 @@ usage() {
   scroll=false
   echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S] [-F] [figletopts] [<message>] [lolcatopts]
 
-    -S            : Disable start anim scrolling up
-    -F            : Display <message> with all fonts in <fontdir>
+    -S            : disable start anim scrolling up
+    -F            : display <message> with all fonts in <fontdir>
     -t <tmoutsec> : animation duration (default 2.0)
     -s <sleepsec> : sleep between frales (default 0.1)
     <message>     : message to display (if not uses stdin w/o figlet)
