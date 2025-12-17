@@ -58,15 +58,22 @@ do_logo() {
 }
 
 usage() {
-  echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-d <fontdir>] [-f <font>] [-l|-r] [-F] <message> [spread=<spread>] [freq=<freq>]
+  printf '\033]?7l'
+  echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-F] [figletopts] [<message>] [lolcatopts]
 
-    -l|-r : left / right align (default center)
-    -F    : Display with all fonts in <fontdir>
-defaults: 
-    fontdir : figlet default font directory
-    tmoutsec: 2.0 sleepsec: 0.1 spread: 2.0 freq: 0.15
-if no <message> uses stdin without figlet to produce neon output
-" |do_logo 0.5 0.1
+    -F            : Display <message> with all fonts in <fontdir>
+    -t <tmoutsec> : animation duration (default 2.0)
+    -s <sleepsec> : sleep between frales (default 0.1)
+    <message>     : message to display (if not uses stdin w/o figlet)
+    figletopts:
+      -l|-r : left / right align (default center)
+      -d <fontdir> : font directory
+      -f <font> : font name
+    lolcatopts:
+      spread=<spread> : default 2.0
+      freq=<freq>     : default 0.15
+" |fold -w $width |do_logo 0.5 0.1
+  printf '\033]?7h'
   exit 1
 }
 
