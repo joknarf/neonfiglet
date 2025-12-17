@@ -1,3 +1,8 @@
+[![Joknarf Tools](https://img.shields.io/badge/Joknarf%20Tools-Visit-darkgreen?logo=github)](https://joknarf.github.io/joknarf-tools)
+[![bash](https://img.shields.io/badge/shell-bash%20-blue.svg)]()
+[![Licence](https://img.shields.io/badge/licence-MIT-blue.svg)](https://shields.io/)
+
+
 # neonfiglet
 
 Fun banners with animated scroll / rainbow
@@ -10,3 +15,7 @@ Fun banners with animated scroll / rainbow
 ## pre-requisite
 
 * figlet (only to print message with figlet/toilet font)
+
+## credits
+
+* awk lolcat code from [lolcat](https://github.com/Saruspete/lolcat)
