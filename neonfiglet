@@ -132,7 +132,7 @@ $allfonts && {
   for i in *.?lf;do
     font=${i%.*}
     echo $font":"
-    figlet -c -w $width"${figargs[@]}" -f "$i" "${text:-${font^} 123}" |do_logo $timeout $delay "$@"
+    figlet -c -w $width "${figargs[@]}" -f "$i" "${text:-${font^} 123}" |do_logo $timeout $delay "$@"
   done
   exit
 }
