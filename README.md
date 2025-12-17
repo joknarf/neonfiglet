@@ -14,7 +14,22 @@ Fun banners with animated scroll / rainbow
 
 ## pre-requisite
 
+* tput (ncurses)
 * figlet (only to print message with figlet/toilet font)
+
+## install
+
+```
+git clone https://github.com/joknarf/neonfiglet
+```
+
+## usage
+
+```
+neonfiglet -h
+neonfiglet "message"
+```
+
 
 ## credits
 
