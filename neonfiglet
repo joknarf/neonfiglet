@@ -52,6 +52,12 @@ right_pad_lines() {
   for i in "${!lines[@]}"; do printf -v s "%-*s" "$max" "${lines[i]}";lines[i]=$s; done
 }
 
+center_lines() {
+  nspaces=$(((width-${#lines[0]})/2)) # center align
+  spaces=$(printf '%*s' $nspaces '')  # prefix spaces
+  lines=( "${lines[@]/#/$spaces}" )     # add spaces  
+}
+
 do_scroll_down() {
   printf '\n%.0s' $(eval echo "{1..$len}")
   for ((i=1;i<=$len;i++)) ;do
@@ -88,6 +94,7 @@ do_logo() {
   shift 2
   mapfile -t lines                    # put text from stdin into array
   right_pad_lines
+  $center && center_lines
   len="${#lines[@]}"
   tput civis                          # hide cursor
   now; stime=$now
@@ -104,7 +111,7 @@ do_logo() {
 }
 
 usage() {
-  # scroll=false
+  center=false
   echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S] [-F] [figletopts] [<message>] [lolcatopts]
 
     -S            : disable start anim scrolling up
@@ -131,11 +138,12 @@ scroll=true
 width=$(tput cols)
 fontdir=$(figlet -I2 2>/dev/null)
 figargs=()
+center=true
 while getopts ":t:s:d:f:lrSFh" opt; do
   case "$opt" in
     t) timeout="$OPTARG";;
     s) delay="$OPTARG";;
-    l|r) figargs+=("-$opt");;
+    l|r) figargs+=("-$opt");center=false;;
     F) allfonts=true;;
     S) scroll=false;;
     f|d) figargs+=(-"$opt" "$OPTARG");fontdir="$OPTARG";;
@@ -159,6 +167,7 @@ $allfonts && {
   exit
 }
 if [ "$text" ] ;then
+  center=false # done by figlet
   ! type figlet >/dev/null 2>&1 && do_logo $timeout $delay "$@" <<<"$text" && exit
   figlet -c -w $width "${figargs[@]}" "$text" |do_logo $timeout $delay "$@"
 else
