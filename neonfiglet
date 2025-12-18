@@ -19,11 +19,17 @@ lolcat() {
     {
         nchars = split($0, chars, "")
         for(i=1; i<=nchars; i++) {
+          if (chars[i] == " ") printf(" ")
+          else {
             color = rainbow(freq, offset+i/spread)
-            printf("\033[38;2;%sm%s%s", color, chars[i], "\033[39m")
+            printf("\033[38;2;%sm%s", color, chars[i])
+          }
         }
         offset += spread
         printf("\n")
+    }
+    END {
+      printf("\033[39m")
     }' "$@"
 }
 
@@ -43,7 +49,7 @@ do_scroll_down() {
   printf '\n%.0s' $(eval echo "{1..$len}")
   for ((i=1;i<=$len;i++)) ;do
     tput cuu $((i-1))
-    printf "%s\n" "${text[@]:$((len-i))}" |lolcat offset=$off
+    printf "%s\n" "${lines[@]:$((len-i))}" |lolcat offset=$off
     off+=-10
     sleep $delay
   done
@@ -54,7 +60,7 @@ do_scroll_up() {
   printf '\n%.0s' $(eval echo "{1..$len}")
   for ((i=1;i<=$len;i++)) ;do
     tput cuu $i
-    printf "%s\n" "${text[@]:0:$i}" |lolcat offset=$off
+    printf "%s\n" "${lines[@]:0:$i}" |lolcat offset=$off
     off+=-10
     sleep $delay
   done
@@ -62,22 +68,25 @@ do_scroll_up() {
 }
 
 do_logo() {
-  typeset text twidth nspaces spaces timeout=$(s2cs "$1") delay="$2"
+  typeset lines twidth nspaces spaces timeout=$(s2cs "$1") delay="$2"
   typeset -i off=$RANDOM
   shift 2
-  mapfile -t text                     # put logo in array
-  len="${#text[@]}"
+  mapfile -t lines                     # put logo in array
+  len="${#lines[@]}"
+  # for i in "${!lines[@]}"; do
+  #   printf -v lines[i] '%-*s' "$width" "${lines[i]}"
+  # done
   trap 'tput cnorm' EXIT              # restore cursor at exit
   tput civis                          # hide cursor
   stime=$(now)
   $scroll && do_scroll_up
-  printf "%s\n" "${text[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
+  printf "%s\n" "${lines[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
   end=$(($stime+$timeout))
   while [ $(now) -le $end ];do       # anim colors changing rainbow offset
     sleep $delay
     off+=-10
     tput cuu $len              # cursor up nb logo lines
-    printf "%s\n" "${text[@]}" |lolcat freq=0.15 spread=2.0 offset=$((off)) "$@"
+    printf "%s\n" "${lines[@]}" |lolcat freq=0.15 spread=2.0 offset=$((off)) "$@"
   done
 }
 
