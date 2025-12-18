@@ -48,7 +48,7 @@ now() {
 right_pad_lines() {
   local max=0 s i
   for s in "${lines[@]}"; do (( ${#s} > max )) && max=${#s}; done
-  for i in "${!lines[@]}"; do printf -v lines[i] "%-*s" "$max" "${lines[i]}"; done
+  for i in "${!lines[@]}"; do printf -v s "%-*s" "$max" "${lines[i]}";lines[i]=$s; done
 }
 
 do_scroll_down() {
@@ -72,6 +72,12 @@ do_scroll_up() {
   done
   tput cuu $len
 }
+# bash <4
+type mapfile >/dev/null 2>&1 || mapfile() {
+  typeset o="$IFS"
+  # disable globbing to prevent filenames expansion
+  IFS=$'\n'; set -f; lines=( $(< /dev/stdin) ); set +f; IFS="$o"
+}
 
 do_logo() {
   typeset lines twidth nspaces spaces timeout=$(s2cs "$1") delay="$2" len
@@ -81,7 +87,6 @@ do_logo() {
   right_pad_lines
   len="${#lines[@]}"
   max=0
-  trap 'tput cnorm' EXIT              # restore cursor at exit
   tput civis                          # hide cursor
   stime=$(now)
   $scroll && do_scroll_up
@@ -115,6 +120,7 @@ usage() {
   exit 1
 }
 
+trap 'tput cnorm' EXIT              # restore cursor at exit
 timeout=2.0
 delay=0.1
 allfonts=false
