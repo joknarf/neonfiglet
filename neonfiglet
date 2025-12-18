@@ -36,6 +36,7 @@ lolcat() {
 s2cs() {
   cs=$(LANG=C;printf '%.2f' "$1")
   cs="${cs/[.]/}"
+  cs=$((10#$cs))
 }
 
 now() {
