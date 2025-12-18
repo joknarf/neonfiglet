@@ -41,8 +41,8 @@ s2cs() {
 now() {
   typeset cs
   now="${EPOCHREALTIME/,/.}"
-  [ "$now" ] || read -r t _ 2>/dev/null </proc/uptime
-  [ "$now" ] || t=$SECONDS
+  [ "$now" ] || read -r now _ 2>/dev/null </proc/uptime
+  [ "$now" ] || now=$SECONDS
   s2cs "$now"; now="$cs"
 }
 
