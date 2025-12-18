@@ -34,15 +34,16 @@ lolcat() {
 }
 
 s2cs() {
-  typeset s=$(LANG=C;printf '%.2f' "$1")
-  printf '%s' "${s/[.]/}"
+  cs=$(LANG=C;printf '%.2f' "$1")
+  cs="${cs/[.]/}"
 }
 
 now() {
-  typeset t="${EPOCHREALTIME/,/.}"
-  [ "$t" ] || read -r t _ 2>/dev/null </proc/uptime
-  [ "$t" ] || t=$SECONDS
-  s2cs "$t"
+  typeset cs
+  now="${EPOCHREALTIME/,/.}"
+  [ "$now" ] || read -r t _ 2>/dev/null </proc/uptime
+  [ "$now" ] || t=$SECONDS
+  s2cs "$now"; now="$cs"
 }
 
 right_pad_lines() {
@@ -80,23 +81,24 @@ type mapfile >/dev/null 2>&1 || mapfile() {
 }
 
 do_logo() {
-  typeset lines twidth nspaces spaces timeout=$(s2cs "$1") delay="$2" len
+  typeset lines twidth nspaces spaces timeout="$1" delay="$2" len cs
   typeset -i off=$RANDOM
+  s2cs "$timeout"; timeout="$cs"
   shift 2
-  mapfile -t lines                     # put logo in array
+  mapfile -t lines                    # put text from stdin into array
   right_pad_lines
   len="${#lines[@]}"
-  max=0
   tput civis                          # hide cursor
-  stime=$(now)
+  now; stime=$now
   $scroll && do_scroll_up "$@"
   printf "%s\n" "${lines[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
   end=$(($stime+$timeout))
-  while [ $(now) -le $end ];do       # anim colors changing rainbow offset
+  while [ $now -le $end ];do       # anim colors changing rainbow offset
     sleep $delay
     off+=-10
     tput cuu $len              # cursor up nb logo lines
     printf "%s\n" "${lines[@]}" |lolcat freq=0.15 spread=2.0 offset=$((off)) "$@"
+    now
   done
 }
 
