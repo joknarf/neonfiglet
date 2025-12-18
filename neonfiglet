@@ -45,6 +45,12 @@ now() {
   s2cs "$t"
 }
 
+right_pad_lines() {
+  local max=0 s i
+  for s in "${lines[@]}"; do (( ${#s} > max )) && max=${#s}; done
+  for i in "${!lines[@]}"; do printf -v lines[i] "%-*s" "$max" "${lines[i]}"; done
+}
+
 do_scroll_down() {
   printf '\n%.0s' $(eval echo "{1..$len}")
   for ((i=1;i<=$len;i++)) ;do
@@ -68,14 +74,13 @@ do_scroll_up() {
 }
 
 do_logo() {
-  typeset lines twidth nspaces spaces timeout=$(s2cs "$1") delay="$2"
+  typeset lines twidth nspaces spaces timeout=$(s2cs "$1") delay="$2" len
   typeset -i off=$RANDOM
   shift 2
   mapfile -t lines                     # put logo in array
+  right_pad_lines
   len="${#lines[@]}"
-  # for i in "${!lines[@]}"; do
-  #   printf -v lines[i] '%-*s' "$width" "${lines[i]}"
-  # done
+  max=0
   trap 'tput cnorm' EXIT              # restore cursor at exit
   tput civis                          # hide cursor
   stime=$(now)
@@ -91,7 +96,7 @@ do_logo() {
 }
 
 usage() {
-  scroll=false
+  # scroll=false
   echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S] [-F] [figletopts] [<message>] [lolcatopts]
 
     -S            : disable start anim scrolling up
@@ -106,7 +111,7 @@ usage() {
     lolcatopts:
       spread=<spread> : default 2.0
       freq=<freq>     : default 0.15
-" |fold -w $width |do_logo 0.5 0.1
+" | fold -w $width| do_logo 0.5 0.01
   exit 1
 }
 
@@ -148,5 +153,7 @@ if [ "$text" ] ;then
   ! type figlet >/dev/null 2>&1 && do_logo $timeout $delay "$@" <<<"$text" && exit
   figlet -c -w $width "${figargs[@]}" "$text" |do_logo $timeout $delay "$@"
 else
+  printf '\033[?7l'    # disable line wrapping
   do_logo $timeout $delay "$@"
+  printf '\033[?7h'    # enable line wrapping
 fi
