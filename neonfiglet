@@ -41,7 +41,6 @@ now() {
 
 do_scroll_down() {
   printf '\n%.0s' $(eval echo "{1..$len}")
-  off=$RANDOM
   for ((i=1;i<=$len;i++)) ;do
     tput cuu $((i-1))
     printf "%s\n" "${text[@]:$((len-i))}" |lolcat offset=$off
