@@ -120,7 +120,8 @@ do_scroll_left() {
   for ((pos=width-min;pos>=0;pos-=8));do
     printf -v spaces '%*s' $pos ''
     l=("${lines[@]/#/$spaces}")
-    printf "%s\n" "${l[@]/%${spaces// /?}/}" |lolcat offset=$off "$@"
+    chars=${spaces// /?}
+    printf "%s\n" "${l[@]/%$chars/}" |lolcat offset=$off "$@"
     tput cuu $len
     off+=-10
     sleep $delay
@@ -130,7 +131,8 @@ do_scroll_left() {
 do_write() {
   for ((pos=$max;pos>=0;pos-=8));do
     printf -v chars '%*s' $pos ''
-    printf "%s\n" "${lines[@]/%${chars// /?}/}" |lolcat offset=$off "$@"
+    chars=${chars// /?}
+    printf "%s\n" "${lines[@]/%$chars/}" |lolcat offset=$off "$@"
     tput cuu $len
     off+=-10
     sleep $delay
