@@ -134,7 +134,7 @@ type mapfile >/dev/null 2>&1 || mapfile() {
   IFS=$'\n'; set -f; lines=( $(< /dev/stdin) ); set +f; IFS="$o"
 }
 
-do_logo() {
+do_anim() {
   typeset lines twidth nspaces spaces timeout="$1" delay="$2" len cs
   typeset -i off=$RANDOM
   s2cs "$timeout"; timeout="$cs"
@@ -185,7 +185,7 @@ usage() {
     lolcatopts:
       spread=<spread> : default 2.0
       freq=<freq>     : default 0.15
-" | fold -w $width| do_logo 0.5 0.01
+" | fold -w $width| do_anim 0.5 0.01
   exit 1
 }
 
@@ -225,17 +225,17 @@ $allfonts && {
     font=${i%.*}
     echo $font":"
     font=${font##*/}
-    figlet -c -w $width "${figargs[@]}" -f "$i" "${text:-${font^} 123}" |do_logo $timeout $delay "$@"
+    figlet -c -w $width "${figargs[@]}" -f "$i" "${text:-${font^} 123}" |do_anim $timeout $delay "$@"
   done
   exit
 }
 if [ "$text" ] ;then
   center=false # done by figlet
   right=false
-  ! type figlet >/dev/null 2>&1 && do_logo $timeout $delay "$@" <<<"$text" && exit
-  figlet -c -w $width "${figargs[@]}" "$text" |do_logo $timeout $delay "$@"
+  ! type figlet >/dev/null 2>&1 && do_anim $timeout $delay "$@" <<<"$text" && exit
+  figlet -c -w $width "${figargs[@]}" "$text" |do_anim $timeout $delay "$@"
 else
   printf '\033[?7l'    # disable line wrapping
-  do_logo $timeout $delay "$@"
+  do_anim $timeout $delay "$@"
   printf '\033[?7h'    # enable line wrapping
 fi
