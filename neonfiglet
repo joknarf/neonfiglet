@@ -55,18 +55,21 @@ right_pad_lines() {
   local s i 
   max=0
   for s in "${lines[@]}"; do (( ${#s} > max )) && max=${#s}; done
-  for i in "${!lines[@]}"; do printf -v s "%-*s" "$max" "${lines[i]}";lines[i]=$s; done
+  for i in "${!lines[@]}"; do 
+    printf -v sp '%*s' $((max-${#lines[i]})) ''
+    lines[i]="${lines[i]}$sp"
+  done
 }
 
 align_center() {
   nspaces=$(((width-$max)/2))          # center align
-  spaces=$(printf '%*s' $nspaces '')  # prefix spaces
+  printf -v spaces '%*s' $nspaces ''  # prefix spaces
   lines=( "${lines[@]/#/$spaces}" )   # add spaces  
 }
 
 align_right() {
   nspaces=$((width-$max))             # right align
-  spaces=$(printf '%*s' $nspaces '')  # prefix spaces
+  printf -v spaces '%*s' $nspaces ''  # prefix spaces
   lines=( "${lines[@]/#/$spaces}" )   # add spaces  
 }
 
@@ -94,7 +97,7 @@ do_scroll_up() {
 
 do_scroll_right() {
   for ((pos=${#lines[0]}-7;pos>=0;pos-=8));do
-    chars=$(printf '%*s' $pos '')
+    printf -v chars '%*s' $pos ''
     printf "%s\n" "${lines[@]/#${chars// /?}/}" |lolcat offset=$off "$@"
     tput cuu $len
     off+=-10
@@ -105,10 +108,16 @@ do_scroll_right() {
 do_scroll_left() {
   # width padding
   d=$((width-${#lines[0]}))
-  rspaces=$(printf '%*s' $d '')
+  printf -v rspaces '%*s' $d ''
   lines=( "${lines[@]/%/$rspaces}" )
-  for ((pos=width-7;pos>=0;pos-=8));do
-    spaces=$(printf '%*s' $pos '')
+  min=$width
+  for s in "${lines[@]}";do
+    lspaces="${s%%[^ ]*}"
+    nspaces=${#lspaces}
+    [ $nspaces -lt $min ] && min=$nspaces
+  done
+  for ((pos=width-min;pos>=0;pos-=8));do
+    printf -v spaces '%*s' $pos ''
     l=("${lines[@]/#/$spaces}")
     printf "%s\n" "${l[@]/%${spaces// /?}/}" |lolcat offset=$off "$@"
     tput cuu $len
@@ -119,7 +128,7 @@ do_scroll_left() {
 
 do_write() {
   for ((pos=$max;pos>=0;pos-=8));do
-    chars=$(printf '%*s' $pos '')
+    printf -v chars '%*s' $pos ''
     printf "%s\n" "${lines[@]/%${chars// /?}/}" |lolcat offset=$off "$@"
     tput cuu $len
     off+=-10
