@@ -48,7 +48,8 @@ now() {
 }
 
 right_pad_lines() {
-  local max=0 s i
+  local s i 
+  max=0
   for s in "${lines[@]}"; do (( ${#s} > max )) && max=${#s}; done
   for i in "${!lines[@]}"; do printf -v s "%-*s" "$max" "${lines[i]}";lines[i]=$s; done
 }
@@ -80,6 +81,42 @@ do_scroll_up() {
   done
   tput cuu $len
 }
+
+do_scroll_right() {
+  for ((pos=${#lines[0]};pos>=0;pos-=8));do
+    chars=$(printf '%*s' $pos '')
+    printf "%s\n" "${lines[@]/#${chars// /?}/}" |lolcat offset=$off "$@"
+    tput cuu $len
+    off+=-10
+    sleep $delay
+  done
+}
+
+do_scroll_left() {
+  # width padding
+  d=$((width-${#lines[0]}))
+  rspaces=$(printf '%*s' $d '')
+  lines=( "${lines[@]/%/$rspaces}" )
+  for ((pos=width-max;pos>=0;pos-=8));do
+    spaces=$(printf '%*s' $pos '')
+    l=("${lines[@]/#/$spaces}")
+    printf "%s\n" "${l[@]/%${spaces// /?}/}" |lolcat offset=$off "$@"
+    tput cuu $len
+    off+=-10
+    sleep $delay
+  done
+}
+
+do_show_left() {
+  for ((pos=${#lines[0]};pos>=0;pos-=8));do
+    chars=$(printf '%*s' $pos '')
+    printf "%s\n" "${lines[@]/%${chars// /?}/}" |lolcat offset=$off "$@"
+    tput cuu $len
+    off+=-10
+    sleep $delay
+  done
+}
+
 # bash <4
 type mapfile >/dev/null 2>&1 || mapfile() {
   typeset o="$IFS"
@@ -103,6 +140,8 @@ do_logo() {
   case "$scroll" in
     up) do_scroll_up;;
     down) do_scroll_down;;
+    right) do_scroll_right;;
+    left) do_scroll_left;;
   esac
   while [ $now -lt $end ];do       # anim colors changing rainbow offset
     off+=-10
