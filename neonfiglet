@@ -107,15 +107,15 @@ do_scroll_right() {
 
 do_scroll_left() {
   # width padding
-  d=$((width-${#lines[0]}))
-  printf -v rspaces '%*s' $d ''
-  lines=( "${lines[@]/%/$rspaces}" )
   min=$width
   for s in "${lines[@]}";do
     lspaces="${s%%[^ ]*}"
     nspaces=${#lspaces}
     (( $nspaces < $min )) && min=$nspaces
   done
+  d=$((width-${#lines[0]}))
+  printf -v rspaces '%*s' $d ''
+  lines=( "${lines[@]/%/$rspaces}" )
   for ((pos=width-min;pos>=0;pos-=8));do
     printf -v spaces '%*s' $pos ''
     l=("${lines[@]/#/$spaces}")
