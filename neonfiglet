@@ -54,10 +54,16 @@ right_pad_lines() {
   for i in "${!lines[@]}"; do printf -v s "%-*s" "$max" "${lines[i]}";lines[i]=$s; done
 }
 
-center_lines() {
-  nspaces=$(((width-${#lines[0]})/2)) # center align
+align_center() {
+  nspaces=$(((width-$max)/2))          # center align
   spaces=$(printf '%*s' $nspaces '')  # prefix spaces
-  lines=( "${lines[@]/#/$spaces}" )     # add spaces  
+  lines=( "${lines[@]/#/$spaces}" )   # add spaces  
+}
+
+align_right() {
+  nspaces=$((width-$max))             # right align
+  spaces=$(printf '%*s' $nspaces '')  # prefix spaces
+  lines=( "${lines[@]/#/$spaces}" )   # add spaces  
 }
 
 do_scroll_down() {
@@ -107,8 +113,8 @@ do_scroll_left() {
   done
 }
 
-do_show_left() {
-  for ((pos=${#lines[0]};pos>=0;pos-=8));do
+do_write() {
+  for ((pos=$max;pos>=0;pos-=8));do
     chars=$(printf '%*s' $pos '')
     printf "%s\n" "${lines[@]/%${chars// /?}/}" |lolcat offset=$off "$@"
     tput cuu $len
@@ -132,16 +138,18 @@ do_logo() {
   shift 2
   mapfile -t lines                    # put text from stdin into array
   right_pad_lines
-  $center && center_lines
+  $center && align_center
+  $right && align_right
   len="${#lines[@]}"
   tput civis                          # hide cursor
   now; stime=$now
   end=$(($stime+$timeout))
   case "$scroll" in
-    up) do_scroll_up;;
-    down) do_scroll_down;;
-    right) do_scroll_right;;
-    left) do_scroll_left;;
+    u) do_scroll_up;;
+    d) do_scroll_down;;
+    r) do_scroll_right;;
+    l) do_scroll_left;;
+    write) do_write;;
   esac
   while [ $now -lt $end ];do       # anim colors changing rainbow offset
     off+=-10
@@ -157,7 +165,7 @@ usage() {
   center=false
   echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S <dir>] [-F] [figletopts] [<message>] [lolcatopts]
 
-    -S <dir>      : initial scroll direction (up, down, none)
+    -S <dir>      : initial scroll direction (u, d, l, r, write, none)
     -F            : display <message> with all fonts in <fontdir>
     -t <tmoutsec> : animation duration (default 2.0)
     -s <sleepsec> : sleep between frales (default 0.1)
@@ -177,16 +185,18 @@ trap 'tput cnorm' EXIT              # restore cursor at exit
 timeout=2.0
 delay=0.1
 allfonts=false
-scroll=up
+scroll=u
 width=$(tput cols)
 fontdir=$(figlet -I2 2>/dev/null)
 figargs=()
 center=true
+right=false
 while getopts ":t:s:d:f:lrS:Fh" opt; do
   case "$opt" in
     t) timeout="$OPTARG";;
     s) delay="$OPTARG";;
-    l|r) figargs+=("-$opt");center=false;;
+    l) figargs+=("-$opt");center=false;;
+    r) figargs+=("-$opt");center=false;right=true;;
     F) allfonts=true;;
     S) scroll="$OPTARG";;
     f|d) figargs+=(-"$opt" "$OPTARG");fontdir="$OPTARG";;
@@ -211,6 +221,7 @@ $allfonts && {
 }
 if [ "$text" ] ;then
   center=false # done by figlet
+  right=false
   ! type figlet >/dev/null 2>&1 && do_logo $timeout $delay "$@" <<<"$text" && exit
   figlet -c -w $width "${figargs[@]}" "$text" |do_logo $timeout $delay "$@"
 else
