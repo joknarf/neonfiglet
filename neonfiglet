@@ -107,7 +107,7 @@ do_scroll_left() {
   d=$((width-${#lines[0]}))
   rspaces=$(printf '%*s' $d '')
   lines=( "${lines[@]/%/$rspaces}" )
-  for ((pos=width-max;pos>=0;pos-=8));do
+  for ((pos=width-7;pos>=0;pos-=8));do
     spaces=$(printf '%*s' $pos '')
     l=("${lines[@]/#/$spaces}")
     printf "%s\n" "${l[@]/%${spaces// /?}/}" |lolcat offset=$off "$@"
@@ -145,6 +145,7 @@ do_anim() {
   $center && align_center
   $right && align_right
   len="${#lines[@]}"
+  stty -echo </dev/tty            # disable echo
   tput civis                          # hide cursor
   now; stime=$now
   end=$(($stime+$timeout))
@@ -188,8 +189,7 @@ usage() {
 " | fold -w $width| do_anim 0.5 0.01
   exit 1
 }
-
-trap 'tput cnorm' EXIT              # restore cursor at exit
+trap 'stty echo </dev/tty;tput cnorm' EXIT              # restore cursor at exit
 timeout=2.0
 delay=0.1
 allfonts=false
