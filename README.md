@@ -9,7 +9,15 @@ Fun banners with animated scroll / rainbow
 
 <img width="1782" height="196" alt="image" src="https://github.com/user-attachments/assets/2b6ddc26-cca8-4c0a-97d7-ea3be225e03b" />
 
-![neonfiglet4](https://github.com/user-attachments/assets/4b424a0a-c8cc-4362-b5c3-761e0bf2657d)
+![neonfiglet5](https://github.com/user-attachments/assets/cb42bf80-9f36-4489-b594-8f65dd704571)
+
+
+## features
+
+* lolcat color animation any content
+* figlet font message
+* left / center / right align
+* initial scroll up / down / left /right or write left to right
 
 ## pre-requisite
 
