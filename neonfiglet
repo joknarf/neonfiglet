@@ -114,7 +114,7 @@ do_scroll_left() {
   for s in "${lines[@]}";do
     lspaces="${s%%[^ ]*}"
     nspaces=${#lspaces}
-    [ $nspaces -lt $min ] && min=$nspaces
+    (( $nspaces < $min )) && min=$nspaces
   done
   for ((pos=width-min;pos>=0;pos-=8));do
     printf -v spaces '%*s' $pos ''
