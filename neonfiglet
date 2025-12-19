@@ -138,7 +138,7 @@ do_logo() {
   typeset lines twidth nspaces spaces timeout="$1" delay="$2" len cs
   typeset -i off=$RANDOM
   s2cs "$timeout"; timeout="$cs"
-  s2cs "$delay"; timeout+="-$cs"
+  s2cs "$delay"; timeout=$((timeout-cs))
   shift 2
   mapfile -t lines                    # put text from stdin into array
   right_pad_lines
@@ -148,6 +148,7 @@ do_logo() {
   tput civis                          # hide cursor
   now; stime=$now
   end=$(($stime+$timeout))
+
   case "$scroll" in
     u) do_scroll_up;;
     d) do_scroll_down;;
@@ -155,14 +156,17 @@ do_logo() {
     l) do_scroll_left;;
     write) do_write;;
   esac
+
+  off+=-10
+  printf '%s\n' "${lines[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
+  now
   while [ $now -lt $end ];do       # anim colors changing rainbow offset
+    sleep $delay
+    tput cuu $len              # cursor up nb logo lines
     off+=-10
     printf '%s\n' "${lines[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
-    tput cuu $len              # cursor up nb logo lines
-    sleep $delay
     now
   done
-  tput cud $len
 }
 
 usage() {
@@ -214,11 +218,13 @@ shift $((OPTIND - 1))
 text="$1"
 shift
 $allfonts && {
-  shift
+  center=false
+  right=false
   cd "$fontdir"
-  for i in *.?lf;do
+  for i in $(ls *.?lf */*.?lf 2>/dev/null);do
     font=${i%.*}
     echo $font":"
+    font=${font##*/}
     figlet -c -w $width "${figargs[@]}" -f "$i" "${text:-${font^} 123}" |do_logo $timeout $delay "$@"
   done
   exit
