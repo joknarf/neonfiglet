@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# neonfiglet: rainbow colored figlet / stdin text animation
+# Copyright (C) 2025 joknarf
+# License: MIT (see LICENSE file)
+# Author: joknarf
 
 lolcat() {
   awk '
