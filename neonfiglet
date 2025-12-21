@@ -208,13 +208,13 @@ usage() {
   exit 1
 }  
 _stty_ori=$(stty -g </dev/tty)  # save stty settings)
-trap 'printf "\033[999;0H";stty $_stty_ori </dev/tty;tput cnorm' EXIT              # restore cursor at exit
+#printf "\033[999;0H"; # move cursor to bottom left
+trap 'stty $_stty_ori </dev/tty;tput cnorm' EXIT              # restore cursor at exit
 timeout=2.0
 delay=0.1
 allfonts=false
 scroll=u
 width=$(tput cols)
-fontdir=$(figlet -I2 2>/dev/null)
 figargs=()
 center=true
 right=false
@@ -237,6 +237,7 @@ shift $((OPTIND - 1))
 text="$1"
 shift
 $allfonts && {
+  : "${fontdir:=$(figlet -I2 2>/dev/null)}"
   center=false
   right=false
   cd "$fontdir"
