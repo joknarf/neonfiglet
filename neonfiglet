@@ -208,7 +208,7 @@ usage() {
   exit 1
 }  
 _stty_ori=$(stty -g </dev/tty)  # save stty settings)
-trap 'stty $_stty_ori </dev/tty;tput cnorm' EXIT              # restore cursor at exit
+trap 'printf "\033[999;0H";stty $_stty_ori </dev/tty;tput cnorm' EXIT              # restore cursor at exit
 timeout=2.0
 delay=0.1
 allfonts=false
