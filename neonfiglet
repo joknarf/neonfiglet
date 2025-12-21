@@ -153,7 +153,7 @@ type mapfile >/dev/null 2>&1 || mapfile() {
 }
 
 do_anim() {
-  typeset lines twidth nspaces spaces timeout="$1" delay="$2" len cs
+  typeset lines twidth nspaces spaces timeout="$1" delay="$2" cs
   typeset -i off=$RANDOM
   s2cs "$timeout"; timeout="$cs"
   s2cs "$delay"; timeout=$((timeout-cs))
@@ -163,6 +163,7 @@ do_anim() {
   $center && align_center
   $right && align_right
   len="${#lines[@]}"
+  trap 'tput cud $len;exit' INT # move cursor to bottom left
   stty -echo </dev/tty            # disable echo
   tput civis                          # hide cursor
   now; stime=$now
@@ -208,7 +209,6 @@ usage() {
   exit 1
 }  
 _stty_ori=$(stty -g </dev/tty)  # save stty settings)
-#printf "\033[999;0H"; # move cursor to bottom left
 trap 'stty $_stty_ori </dev/tty;tput cnorm' EXIT              # restore cursor at exit
 timeout=2.0
 delay=0.1
