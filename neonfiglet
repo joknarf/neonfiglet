@@ -169,11 +169,11 @@ do_anim() {
   end=$(($stime+$timeout))
 
   case "$scroll" in
-    u|up) do_scroll_up;;
-    d|down) do_scroll_down;;
-    r|right) do_scroll_right;;
-    l|left) do_scroll_left;;
-    w|write) do_write;;
+    u|up) do_scroll_up "$@";;
+    d|down) do_scroll_down "$@";;
+    r|right) do_scroll_right "$@";;
+    l|left) do_scroll_left "$@";;
+    w|write) do_write "$@";;
   esac
 
   off+=-10
