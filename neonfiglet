@@ -36,7 +36,9 @@ lolcat() {
       printf("\033[39m")
     }' "$@"
 }
-
+lolc() {
+  lolcat freq=0.15 spread=2.0 offset=$off "$@"
+}
 s2cs() {
   cs=$(LANG=C;printf '%.2f' "$1")
   cs="${cs/[.]/}"
@@ -74,12 +76,15 @@ align_right() {
 }
 
 do_scroll_down() {
-  printf '\n%.0s' $(eval echo "{1..$len}")
+  # print one fewer blank line so bottom-up scrolling aligns correctly
+  if [ "$len" -gt 1 ]; then
+    printf '\n%.0s' $(eval echo "{1..$((len-1))}")
+  fi
   tput cuu $len
   for ((i=1;i<=$len;i++)) ;do
-    printf "%s\n" "${lines[@]:$((len-i))}" |lolcat offset=$off "$@"
+    printf "%s\n" "${lines[@]:$((len-i))}" |lolc "$@"
     tput cuu $i
-    off+=-10
+    off+=$offinc
     sleep $delay
   done
 }
@@ -88,8 +93,53 @@ do_scroll_up() {
   printf '\n%.0s' $(eval echo "{1..$len}")
   for ((i=1;i<=$len;i++)) ;do
     tput cuu $i
-    printf "%s\n" "${lines[@]:0:$i}" |lolcat offset=$off "$@"
-    off+=-10
+    printf "%s\n" "${lines[@]:0:$i}" |lolc "$@"
+    off+=$offinc
+    sleep $delay
+  done
+  tput cuu $len
+}
+
+# Column-by-column staggered reveal during scroll-up
+# Character at (row r, col c) is shown when frame >= c + r + 1
+# First column appears top->bottom, second column starts when first column reaches second row, etc.
+do_scroll_up2() {
+  min_lspaces
+  printf '\n%.0s' $(eval echo "{1..$len}")
+  sl=${#lines[0]}
+  # prefix with min spaces to keep alignment while skipping those columns
+  printf -v minsp '%*s' "$min" ''
+  # group columns in batches
+  group_size=8
+  vis_cols=$((sl - min))
+  ngroups=$(((vis_cols + group_size - 1) / group_size))
+  total=$((ngroups + len - 1))
+  for ((frame=0; frame<total; frame++)); do
+    # compute visible counts per column p_c based on group index
+    max_p=0
+    for ((c=$min;c<sl;c++)); do
+      ec=$((c - min))
+      grp=$((ec / group_size))
+      p=$((frame - grp + 1))
+      [ $p -lt 0 ] && p=0
+      [ $p -gt $len ] && p=$len
+      pc[c]=$p
+      [ $p -gt $max_p ] && max_p=$p
+    done
+
+    # render block of len rows (bottom-align each column's visible chars)
+    tput cuu $len
+    for ((r=0; r<len; r++)); do
+      line="$minsp"
+      for ((c=min; c<sl; c++)); do
+        p=${pc[c]}
+        start=$((len - p))
+        k=$((r - start))
+        [ $k -ge 0 -a $k -lt $p ] && line+="${lines[k]:c:1}" || line+=" "
+      done
+      printf '%s\n' "$line"
+    done | lolc "$@"
+    off+=$offinc
     sleep $delay
   done
   tput cuu $len
@@ -99,9 +149,9 @@ do_scroll_right() {
   for ((pos=${#lines[0]}-7;pos>=0;pos-=8));do
     printf -v chars '%*s' $pos ''
     chars=${chars// /?}
-    printf "%s\n" "${lines[@]/#$chars/}" |lolcat offset=$off "$@"
+    printf "%s\n" "${lines[@]/#$chars/}" |lolc "$@"
     tput cuu $len
-    off+=-10
+    off+=$offinc
     sleep $delay
   done
 }
@@ -126,9 +176,9 @@ do_scroll_left() {
     printf -v spaces '%*s' $pos ''
     l=("${lines[@]/#/$spaces}")
     chars=${spaces// /?}
-    printf "%s\n" "${l[@]/%$chars/}" |lolcat offset=$off "$@"
+    printf "%s\n" "${l[@]/%$chars/}" |lolc "$@"
     tput cuu $len
-    off+=-10
+    off+=$offinc
     sleep $delay
   done
 }
@@ -138,9 +188,9 @@ do_write() {
   for ((pos=${#lines[0]}-$min;pos>=0;pos-=8));do
     printf -v chars '%*s' $pos ''
     chars=${chars// /?}
-    printf "%s\n" "${lines[@]/%$chars/}" |lolcat offset=$off "$@"
+    printf "%s\n" "${lines[@]/%$chars/}" |lolc "$@"
     tput cuu $len
-    off+=-10
+    off+=$offinc
     sleep $delay
   done
 }
@@ -168,23 +218,22 @@ do_anim() {
   tput civis                          # hide cursor
   now; stime=$now
   end=$(($stime+$timeout))
-
   case "$scroll" in
     u|up) do_scroll_up "$@";;
+    u2) do_scroll_up2 "$@";;
     d|down) do_scroll_down "$@";;
     r|right) do_scroll_right "$@";;
     l|left) do_scroll_left "$@";;
     w|write) do_write "$@";;
   esac
-
-  off+=-10
-  printf '%s\n' "${lines[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
+  off+=$offinc
+  printf '%s\n' "${lines[@]}" |lolc "$@"
   now
   while [ $now -lt $end ];do       # anim colors changing rainbow offset
     sleep $delay
     tput cuu $len              # cursor up nb logo lines
-    off+=-10
-    printf '%s\n' "${lines[@]}" |lolcat freq=0.15 spread=2.0 offset=$off "$@"
+    off+=$offinc
+    printf '%s\n' "${lines[@]}" |lolc "$@"
     now
   done
 }
@@ -193,11 +242,12 @@ usage() {
   center=false
   echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S <dir>] [-F] [figletopts] [<message>] [lolcatopts]
 
-    -S <dir>      : initial scroll direction (u, d, l, r, write, none)
-    -F            : display <message> with all fonts in <fontdir>
-    -t <tmoutsec> : animation duration (default 2.0)
-    -s <sleepsec> : sleep between frales (default 0.1)
-    <message>     : message to display (if not uses stdin w/o figlet)
+    -S <dir>       : initial scroll direction (u, d, l, r, u2, write, none)
+    -F             : display <message> with all fonts in <fontdir>
+    -t <tmoutsec>  : animation duration (default 2.0)
+    -s <sleepsec>  : sleep between frales (default 0.1)
+    -o <offsetinc> : rainbow anim offset increment (default 10)
+    <message>      : message to display (if not uses stdin w/o figlet)
     figletopts:
       -l|-r : left / right align (default center)
       -d <fontdir> : font directory
@@ -218,12 +268,14 @@ width=$(tput cols)
 figargs=()
 center=true
 right=false
-while getopts ":t:s:d:f:lrS:Fh" opt; do
+offinc="-10"
+while getopts ":t:s:d:f:lrS:Fo:h" opt; do
   case "$opt" in
     t) timeout="$OPTARG";;
     s) delay="$OPTARG";;
     l) figargs+=("-$opt");center=false;;
     r) figargs+=("-$opt");center=false;right=true;;
+    o) offinc="-$OPTARG";;
     F) allfonts=true;;
     S) scroll="$OPTARG";;
     f|d) figargs+=(-"$opt" "$OPTARG");fontdir="$OPTARG";;
