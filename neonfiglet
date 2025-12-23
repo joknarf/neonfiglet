@@ -83,8 +83,8 @@ do_scroll_down() {
   tput cuu $len
   for ((i=1;i<=$len;i++)) ;do
     printf "%s\n" "${lines[@]:$((len-i))}" |lolc "$@"
-    tput cuu $i
     off+=$offinc
+    tput cuu $i
     sleep $delay
   done
 }
@@ -104,6 +104,7 @@ do_scroll_up() {
 # Character at (row r, col c) is shown when frame >= c + r + 1
 # First column appears top->bottom, second column starts when first column reaches second row, etc.
 do_scroll_up2() {
+  typeset sl group_size vis_cols ngroups total max_p pc c p start k line
   min_lspaces
   printf '\n%.0s' $(eval echo "{1..$len}")
   sl=${#lines[0]}
@@ -114,14 +115,27 @@ do_scroll_up2() {
   vis_cols=$((sl - min))
   ngroups=$(((vis_cols + group_size - 1) / group_size))
   total=$((ngroups + len - 1))
+
+  # precompute column strings and group index per column
+  typeset -a col col_group
+  for ((c=0;c<sl;c++)); do
+    s=""
+    for ((r=0;r<len;r++)); do
+      s+="${lines[r]:c:1}"
+    done
+    col[c]="$s"
+    if [ $c -lt $min ]; then
+      col_group[c]=-1
+    else
+      col_group[c]=$(((c - min) / group_size))
+    fi
+  done
+
   for ((frame=0; frame<total; frame++)); do
-    # compute visible counts per column p_c based on group index
+    # compute visible counts per column p_c based on precomputed group index
     max_p=0
     for ((c=$min;c<sl;c++)); do
-      ec=$((c - min))
-      grp=$((ec / group_size))
-      p=$((frame - grp + 1))
-      [ $p -lt 0 ] && p=0
+      p=$((frame - col_group[c] + 1))
       [ $p -gt $len ] && p=$len
       pc[c]=$p
       [ $p -gt $max_p ] && max_p=$p
@@ -150,8 +164,8 @@ do_scroll_right() {
     printf -v chars '%*s' $pos ''
     chars=${chars// /?}
     printf "%s\n" "${lines[@]/#$chars/}" |lolc "$@"
-    tput cuu $len
     off+=$offinc
+    tput cuu $len
     sleep $delay
   done
 }
@@ -177,8 +191,8 @@ do_scroll_left() {
     l=("${lines[@]/#/$spaces}")
     chars=${spaces// /?}
     printf "%s\n" "${l[@]/%$chars/}" |lolc "$@"
-    tput cuu $len
     off+=$offinc
+    tput cuu $len
     sleep $delay
   done
 }
@@ -189,8 +203,8 @@ do_write() {
     printf -v chars '%*s' $pos ''
     chars=${chars// /?}
     printf "%s\n" "${lines[@]/%$chars/}" |lolc "$@"
-    tput cuu $len
     off+=$offinc
+    tput cuu $len
     sleep $delay
   done
 }
@@ -226,14 +240,14 @@ do_anim() {
     l|left) do_scroll_left "$@";;
     w|write) do_write "$@";;
   esac
-  off+=$offinc
   printf '%s\n' "${lines[@]}" |lolc "$@"
+  off+=$offinc
   now
   while [ $now -lt $end ];do       # anim colors changing rainbow offset
     sleep $delay
     tput cuu $len              # cursor up nb logo lines
-    off+=$offinc
     printf '%s\n' "${lines[@]}" |lolc "$@"
+    off+=$offinc
     now
   done
 }
