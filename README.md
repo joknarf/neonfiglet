@@ -14,7 +14,7 @@ Fun banners with animated scroll / rainbow
 
 ## features
 
-* lolcat color animation any content
+* lolcat color animate any content
 * figlet font message
 * left / center / right align
 * initial scroll up / down / left / right, staggered up, write left to right
