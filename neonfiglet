@@ -167,9 +167,11 @@ lolcat() {
       printf("\033[39m")
     }' "$@"
 }
+
 lolc() {
   lolcat freq=0.15 spread=2.0 offset=$off "$@"
 }
+
 s2cs() {
   cs=$(LANG=C;printf '%.2f' "$1")
   cs="${cs/[.]/}"
@@ -185,7 +187,7 @@ now() {
 }
 
 right_pad_lines() {
-  local s i 
+  local s i
   max=0
   for s in "${lines[@]}"; do (( ${#s} > max )) && max=${#s}; done
   for i in "${!lines[@]}"; do 
@@ -195,7 +197,7 @@ right_pad_lines() {
 }
 
 align_center() {
-  nspaces=$(((width-$max)/2))          # center align
+  nspaces=$(((width-$max)/2))         # center align
   printf -v spaces '%*s' $nspaces ''  # prefix spaces
   lines=( "${lines[@]/#/$spaces}" )   # add spaces  
 }
@@ -328,15 +330,17 @@ do_anim() {
   s2cs "$delay"; timeout=$((timeout-cs))
   shift 2
   mapfile -t lines              # put text from stdin into array
+  $msg && lines=( "${prefix[@]}" "${lines[@]}" "${suffix[@]}" )
   right_pad_lines
+
   $center && align_center
   $right && align_right
   len="${#lines[@]}"
   trap 'tput cud $len;exit' INT # move cursor to bottom left
   stty -echo </dev/tty          # disable echo
   tput civis                    # hide cursor
-  now; stime=$now
-  end=$(($stime+$timeout))
+  now
+  end=$(($now+$timeout))
   case "$scroll" in
     u|up) do_scroll_up "$@";;
     U|stagger) do_scroll_up2 "$@";;
@@ -357,6 +361,29 @@ do_anim() {
   done
 }
 
+do_msg() {
+  mapfile -t lines <<'EOF'
+       \\\||||||////           
+        \\  ~ ~  //            
+         (  @ @  )             
+______ oOOo-(_)-oOOo___________
+                               
+EOF
+  max=${#lines[0]}
+  $right && align_right
+  $center && align_center
+  prefix=( "${lines[@]}" )
+  mapfile -t lines <<'EOF'
+_____________Oooo._____________
+   .oooO     (   )             
+    (   )     ) /              
+     \ (     (_/               
+      \_)                      
+EOF
+  $right && align_right
+  $center && align_center
+  suffix=( "${lines[@]}" )
+}
 usage() {
   center=false
   offinc="-2"
@@ -367,6 +394,7 @@ usage() {
     -t <tmoutsec>  : animation duration (default 2.0)
     -s <sleepsec>  : sleep between frales (default 0.07)
     -o <offsetinc> : rainbow anim offset increment (default 5)
+    -m             : display figlet message with classic Barefoot Guy
     <message>      : message to display (if not uses stdin w/o figlet)
     figletopts:
       -l|-r : left / right align (default center)
@@ -383,8 +411,8 @@ usage() {
 " | fold -w $width| do_anim 0.5 0.01
   exit 1
 }  
-_stty_ori=$(stty -g </dev/tty)  # save stty settings)
-trap 'stty $_stty_ori </dev/tty;tput cnorm' EXIT              # restore cursor at exit
+_stty_ori=$(stty -g </dev/tty)  # save stty settings
+trap 'stty $_stty_ori </dev/tty;tput cnorm' EXIT   # restore cursor/tty at exit
 timeout=2.0
 delay=0.07
 allfonts=false
@@ -394,7 +422,8 @@ figargs=()
 center=true
 right=false
 offinc="-5"
-while getopts ":t:s:d:f:lrS:Fo:h" opt; do
+msg=false
+while getopts ":t:s:d:f:lrS:Fo:hm" opt; do
   case "$opt" in
     t) timeout="$OPTARG";;
     s) delay="$OPTARG";;
@@ -404,6 +433,7 @@ while getopts ":t:s:d:f:lrS:Fo:h" opt; do
     F) allfonts=true;;
     S) scroll="$OPTARG";;
     f|d) figargs+=(-"$opt" "$OPTARG");fontdir="$OPTARG";;
+    m) msg=true;;
     h) usage;;
     :) echo "Option -$OPTARG requires an argument"; usage ;;
     \?) echo "Invalid option: -$OPTARG"; usage;;
@@ -440,13 +470,14 @@ $allfonts && {
   done
   exit
 }
+$msg && do_msg
 if [ "$text" ] ;then
   center=false # done by figlet
   right=false
   ! type figlet >/dev/null 2>&1 && do_anim $timeout $delay "$@" <<<"$text" && exit
   figlet -c -w $width "${figargs[@]}" "$text" |do_anim $timeout $delay "$@"
 else
-  printf '\033[?7l'    # disable line wrapping
+  #printf '\033[?7l'    # disable line wrapping
   do_anim $timeout $delay "$@"
   printf '\033[?7h'    # enable line wrapping
 fi
