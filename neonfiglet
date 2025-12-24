@@ -251,17 +251,13 @@ do_scroll_up2() {
 
   # precompute column strings and group index per column
   typeset -a col col_group
-  for ((c=0;c<sl;c++)); do
+  for ((c=$min;c<sl;c++)); do
     s=""
     for ((r=0;r<len;r++)); do
       s+="${lines[r]:c:1}"
     done
     col[c]="$s"
-    if [ $c -lt $min ]; then
-      col_group[c]=-1
-    else
-      col_group[c]=$(((c - min) / group_size))
-    fi
+    col_group[c]=$(((c - min) / group_size))
   done
 
   for ((frame=0; frame<total; frame++)); do
