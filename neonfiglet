@@ -207,10 +207,7 @@ align_right() {
 }
 
 do_scroll_down() {
-  # print one fewer blank line so bottom-up scrolling aligns correctly
-  if [ "$len" -gt 1 ]; then
-    printf '\n%.0s' $(eval echo "{1..$((len-1))}")
-  fi
+  printf '\n%.0s' $(eval echo "{1..$len}")
   tput cuu $len
   for ((i=1;i<=$len;i++)) ;do
     printf "%s\n" "${lines[@]:$((len-i))}" |lolc "$@"
