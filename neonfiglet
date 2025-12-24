@@ -7,26 +7,157 @@
 lolcat() {
   awk '
     BEGIN {
-        freq = 0.1
-        spread = 3.0
-        pi = atan2(0,-1)
-        offset = 0
+      freq = 0.1
+      spread = 3.0
+      pi = atan2(0,-1)
+      offset = 0
+      theme = "rainbow"
+      sat = 1.0
+      light = 1.0
+      pi23 = 2 * pi / 3
+      pi43 = 4 * pi / 3
+    }
+    function adjust_saturation( gray) {
+      if (sat == 1.0) return
+      gray = 0.299*r + 0.587*g + 0.114*b
+      r = gray + (r - gray) * sat
+      g = gray + (g - gray) * sat
+      b = gray + (b - gray) * sat
+      if (r > 255) r = 255
+      if (g > 255) g = 255
+      if (b > 255) b = 255
+    }
+    function adjust_lightness() {
+      if (light == 1.0) return
+      r = r * light
+      g = g * light
+      b = b * light
+      if (r > 255) r = 255
+      if (g > 255) g = 255
+      if (b > 255) b = 255
+    }
+    function adjust_colors() {
+      adjust_saturation()
+      adjust_lightness()
+    }
+    function rainbow(f,s,  t) {
+      t = f*s
+      r = sin(t) * 127 + 128
+      g = sin(t + pi23) * 127 + 128
+      b = sin(t + pi43) * 127 + 128
+    }
+    function setred(f,s) {
+      rainbow(f,s)
+      r=127
+    }
+    function setgreen(f,s) {
+      rainbow(f,s)
+      g=127
+    }
+    function setblue(f,s) {
+      rainbow(f,s)
+      b=127
+    }
+    function bw(f,s) {
+      rainbow(f,s)
+      g=r;b=r
+    }
+    function red2(f,s) {
+      rainbow(f,s)
+      g=255-r;b=255-r
+    }
+    function blue2(f,s) {
+      rainbow(f,s)
+      r=255-b;g=255-b
+    }
+    function green2(f,s) {
+      rainbow(f,s)
+      r=255-g;b=255-g
     }
 
-    function rainbow(f,s,  t, r,g,b) {
-        t = f*s
-        r = sin(t + 0) * 127 + 128
-        g = sin(t + 2*pi/3) * 127 + 128
-        b = sin(t + 4*pi/3) * 127 + 128
-        return sprintf("%d;%d;%d", r,g,b)
+    function grad(f,s,x1,x2,x3) {
+      t= f*s
+      c1 = (sin(t) + 1) / 2 * x1
+      c2 = (sin(t + pi/4) + 1) / 2 * x2
+      c3 = (sin(t + pi/2) + 1) / 2 * x3
+    }
+    function orange(f,s) {
+      grad(f,s,255,150,50)
+      r=c1;g=c2;b=c3
+    }
+    function yellow(f,s) {
+      grad(f,s,255,0,100)
+      r=c1;g=c1;b=c3
+    }
+    function magenta(f,s) {
+      grad(f,s,255,0,100)
+      r=c1;g=c3;b=c1
+    }
+    function cyan(f,s) {
+      grad(f,s,255,0,100)
+      r=c3;g=c1;b=c1
+    }
+    function blue(f,s) {
+      grad(f,s,255,0,100)
+      r=c3;g=c3;b=c1
+    }
+    function green(f,s) {
+      grad(f,s,255,0,100)
+      r=c3;g=c1;b=c3
+    }
+    function red(f,s) {
+      grad(f,s,255,0,100)
+      r= c1;g=c3;b=c3
+    }
+    function gradient(f,s,  t) {
+      t = f*s
+      r = (sin(t + 0) + 1) / 2 * 255
+      g = (sin(t + pi/3) + 1) / 2 * 255
+      b = (sin(t + 2*pi/3) + 1) / 2 * 255
+    }
+    function pastel(f,s) {
+      t = f*s
+      r = (sin(t) + 1) / 2 * 155 + 100
+      g = (sin(t + pi23) + 1) / 2 * 155 + 100
+      b = (sin(t + pi43) + 1) / 2 * 155 + 100
+    }
+    # metallic bluish/grey gradient with minimal red/green visibility
+    function metal(f,s,  t,x,w,hf, r1,g1,b1, r2,g2,b2, r3,g3,b3)
+    {
+      t = f*s
+      # smooth parameter in [0..1]
+      x = (sin(t) + 1) / 2
+
+      # three control colors (dark gray -> steel-blue -> almost-white)
+      r1=90;  g1=95;  b1=100   # dark gray
+      r2=80;  g2=120; b2=200   # steel blue
+      r3=220; g3=230; b3=255   # bright white/blue
+
+      if (x < 0.5) {
+        w = x * 2
+        r = r1*(1-w) + r2*w
+        g = g1*(1-w) + g2*w
+        b = b1*(1-w) + b2*w
+      } else {
+        w = (x - 0.5) * 2
+        r = r2*(1-w) + r3*w
+        g = g2*(1-w) + g3*w
+        b = b2*(1-w) + b3*w
+      }
+
+      # clamp and return
+      if (r<0) r=0; if (r>255) r=255
+      if (g<0) g=0; if (g>255) g=255
+      if (b<0) b=0; if (b>255) b=255
     }
     {
         nchars = split($0, chars, "")
         for(i=1; i<=nchars; i++) {
           if (chars[i] == " ") printf(" ")
           else {
-            color = rainbow(freq, offset+i/spread)
-            printf("\033[38;2;%sm%s", color, chars[i])
+            @theme(freq, offset+i/spread)
+            adjust_colors()
+            printf("\033[38;2;%d;%d;%dm%s", r, g, b, chars[i])
           }
         }
         offset += spread
@@ -269,6 +400,11 @@ usage() {
     lolcatopts:
       spread=<spread> : default 2.0
       freq=<freq>     : default 0.15
+      light=<val>     : lightness multiplier default 1.0
+      sat=<val>       : saturation multiplier default 1.0
+      theme=<name>    : color theme (rainbow, gradient, pastel, metal, bw, red, green, blue, orange,
+                        yellow, magenta, cyan, setred, setgreen, setblue, red2, green2, blue2)
+                        default rainbow
 " | fold -w $width| do_anim 0.5 0.01
   exit 1
 }  
