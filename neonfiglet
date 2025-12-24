@@ -365,7 +365,7 @@ do_anim() {
   end=$(($stime+$timeout))
   case "$scroll" in
     u|up) do_scroll_up "$@";;
-    u2) do_scroll_up2 "$@";;
+    U|stagger) do_scroll_up2 "$@";;
     d|down) do_scroll_down "$@";;
     r|right) do_scroll_right "$@";;
     l|left) do_scroll_left "$@";;
@@ -387,7 +387,7 @@ usage() {
   center=false
   echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S <dir>] [-F] [figletopts] [<message>] [lolcatopts]
 
-    -S <dir>       : initial scroll direction (u, d, l, r, u2, write, none)
+    -S <dir>       : initial scroll direction (u, U, d, l, r, u2, write, none)
     -F             : display <message> with all fonts in <fontdir>
     -t <tmoutsec>  : animation duration (default 2.0)
     -s <sleepsec>  : sleep between frales (default 0.1)
