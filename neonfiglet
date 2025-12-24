@@ -261,19 +261,13 @@ do_scroll_up2() {
   done
 
   for ((frame=0; frame<total; frame++)); do
-    # compute visible counts per column p_c based on precomputed group index
-    for ((c=$min;c<sl;c++)); do
-      p=$((frame - col_group[c] + 1))
-      [ $p -gt $len ] && p=$len
-      pc[c]=$p
-    done
-
     # render block of len rows (bottom-align each column's visible chars)
     tput cuu $len
     for ((r=0; r<len; r++)); do
       line="$minsp"
       for ((c=min; c<sl; c++)); do
-        p=${pc[c]}
+        p=$((frame - col_group[c] + 1))
+        [ $p -gt $len ] && p=$len
         start=$((len - p))
         k=$((r - start))
         [ $k -ge 0 -a $k -lt $p ] && line+="${lines[k]:c:1}" || line+=" "
