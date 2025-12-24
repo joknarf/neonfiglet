@@ -206,8 +206,13 @@ align_right() {
   lines=( "${lines[@]/#/$spaces}" )   # add spaces  
 }
 
+print_cr() {
+  printf -v spaces '%*s' $1 ''
+  printf '%s' "${spaces// /$'\n'}"
+}
+
 do_scroll_down() {
-  printf '\n%.0s' $(eval echo "{1..$len}")
+  print_cr $len
   tput cuu $len
   for ((i=1;i<=$len;i++)) ;do
     printf "%s\n" "${lines[@]:$((len-i))}" |lolc "$@"
@@ -218,7 +223,7 @@ do_scroll_down() {
 }
 
 do_scroll_up() {
-  printf '\n%.0s' $(eval echo "{1..$len}")
+  print_cr $len
   for ((i=1;i<=$len;i++)) ;do
     tput cuu $i
     printf "%s\n" "${lines[@]:0:$i}" |lolc "$@"
@@ -234,7 +239,7 @@ do_scroll_up() {
 do_scroll_up2() {
   typeset sl group_size vis_cols ngroups total max_p pc c p start k line
   min_lspaces
-  printf '\n%.0s' $(eval echo "{1..$len}")
+  print_cr $len
   sl=${#lines[0]}
   # prefix with min spaces to keep alignment while skipping those columns
   printf -v minsp '%*s' "$min" ''
