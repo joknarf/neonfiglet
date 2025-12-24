@@ -19,6 +19,7 @@ Fun banners with animated scroll / rainbow
 * left / center / right align
 * initial scroll up / down / left / right, staggered up, write left to right
 * colors lightness / saturation adjust
+* color themes
 
 ## pre-requisite
 
