@@ -350,14 +350,14 @@ do_anim() {
   s2cs "$timeout"; timeout="$cs"
   s2cs "$delay"; timeout=$((timeout-cs))
   shift 2
-  mapfile -t lines                    # put text from stdin into array
+  mapfile -t lines              # put text from stdin into array
   right_pad_lines
   $center && align_center
   $right && align_right
   len="${#lines[@]}"
   trap 'tput cud $len;exit' INT # move cursor to bottom left
-  stty -echo </dev/tty            # disable echo
-  tput civis                          # hide cursor
+  stty -echo </dev/tty          # disable echo
+  tput civis                    # hide cursor
   now; stime=$now
   end=$(($stime+$timeout))
   case "$scroll" in
@@ -371,7 +371,7 @@ do_anim() {
   printf '%s\n' "${lines[@]}" |lolc "$@"
   off+=$offinc
   now
-  while [ $now -lt $end ];do       # anim colors changing rainbow offset
+  while [ $now -lt $end ];do   # anim colors changing rainbow offset
     sleep $delay
     tput cuu $len              # cursor up nb logo lines
     printf '%s\n' "${lines[@]}" |lolc "$@"
@@ -441,6 +441,7 @@ $allfonts && {
   center=false
   right=false
   cd "$fontdir"
+  trap 'exit 130' INT
   for i in $(ls *.?lf */*.?lf 2>/dev/null);do
     font=${i%.*}
     echo $font":"
