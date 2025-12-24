@@ -9,7 +9,7 @@ Fun banners with animated scroll / rainbow
 
 ![neonfiglet](https://github.com/user-attachments/assets/2b6ddc26-cca8-4c0a-97d7-ea3be225e03b)
 
-![neonfiglet5](https://github.com/user-attachments/assets/cb42bf80-9f36-4489-b594-8f65dd704571)
+![neonfiglet6](https://github.com/user-attachments/assets/f3c52816-e759-41eb-bb09-33ab167d0e5c)
 
 
 ## features
