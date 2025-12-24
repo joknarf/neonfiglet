@@ -385,13 +385,14 @@ do_anim() {
 
 usage() {
   center=false
+  offinc="-2"
   echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S <dir>] [-F] [figletopts] [<message>] [lolcatopts]
 
     -S <dir>       : initial scroll direction (u, U, d, l, r, u2, write, none)
     -F             : display <message> with all fonts in <fontdir>
     -t <tmoutsec>  : animation duration (default 2.0)
-    -s <sleepsec>  : sleep between frales (default 0.1)
-    -o <offsetinc> : rainbow anim offset increment (default 10)
+    -s <sleepsec>  : sleep between frales (default 0.07)
+    -o <offsetinc> : rainbow anim offset increment (default 5)
     <message>      : message to display (if not uses stdin w/o figlet)
     figletopts:
       -l|-r : left / right align (default center)
@@ -411,14 +412,14 @@ usage() {
 _stty_ori=$(stty -g </dev/tty)  # save stty settings)
 trap 'stty $_stty_ori </dev/tty;tput cnorm' EXIT              # restore cursor at exit
 timeout=2.0
-delay=0.1
+delay=0.07
 allfonts=false
 scroll=u
 width=$(tput cols)
 figargs=()
 center=true
 right=false
-offinc="-10"
+offinc="-5"
 while getopts ":t:s:d:f:lrS:Fo:h" opt; do
   case "$opt" in
     t) timeout="$OPTARG";;
