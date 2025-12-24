@@ -9,11 +9,11 @@ lolcat() {
     BEGIN {
       freq = 0.1
       spread = 3.0
-      pi = atan2(0,-1)
       offset = 0
       theme = "rainbow"
       sat = 1.0
       light = 1.0
+      pi = atan2(0,-1)
       pi23 = 2 * pi / 3
       pi43 = 4 * pi / 3
     }
@@ -409,10 +409,23 @@ while getopts ":t:s:d:f:lrS:Fo:h" opt; do
     \?) echo "Invalid option: -$OPTARG"; usage;;
   esac
 done
-
 shift $((OPTIND - 1))
 text="$1"
 shift
+themes=(
+  rainbow gradient pastel metal
+  red green blue orange yellow magenta cyan
+  setred setgreen setblue red2 green2 blue2 bw
+)
+themes=" ${themes[*]} "
+for opt in "$@";do
+  case "$opt" in
+    theme=*) theme="${opt#theme=}"
+      [ "${themes/ $theme /}" = "$themes" ] && echo "unknown theme: $theme" && usage;;
+    sat=[0-9]*|light=[0-9]*|spread=[0-9]*|freq=[0-9]*|offset=[0-9]*) ;;
+    *) echo "invalid lolcat option: $opt"; usage;;
+  esac
+done
 $allfonts && {
   : "${fontdir:=$(figlet -I2 2>/dev/null)}"
   center=false
