@@ -234,42 +234,26 @@ do_scroll_up() {
 }
 
 # Column-by-column staggered reveal during scroll-up
-# Character at (row r, col c) is shown when frame >= c + r + 1
 # First column appears top->bottom, second column starts when first column reaches second row, etc.
 do_scroll_up2() {
-  typeset sl group_size vis_cols ngroups total pc c p start k line
-  min_lspaces
+  typeset sl group_size ngroups total pc c p start k line
   print_cr $len
-  sl=${#lines[0]}
-  # prefix with min spaces to keep alignment while skipping those columns
+  # skip left spaces
+  min_lspaces
   printf -v minsp '%*s' "$min" ''
-  # group columns in batches
   group_size=8
-  vis_cols=$((sl - min))
-  ngroups=$(((vis_cols + group_size - 1) / group_size))
+  sl=${#lines[0]}
+  ngroups=$(((sl - min + group_size - 1) / group_size))
   total=$((ngroups + len - 1))
 
-  # precompute column strings and group index per column
-  typeset -a col col_group
-  for ((c=$min;c<sl;c++)); do
-    s=""
-    for ((r=0;r<len;r++)); do
-      s+="${lines[r]:c:1}"
-    done
-    col[c]="$s"
-    col_group[c]=$(((c - min) / group_size))
-  done
-
   for ((frame=0; frame<total; frame++)); do
-    # render block of len rows (bottom-align each column's visible chars)
     tput cuu $len
     for ((r=0; r<len; r++)); do
       line="$minsp"
       for ((c=min; c<sl; c++)); do
-        p=$((frame - col_group[c] + 1))
+        p=$((frame - (c-min)/group_size + 1))
         [ $p -gt $len ] && p=$len
-        start=$((len - p))
-        k=$((r - start))
+        k=$((r - len + p))
         [ $k -ge 0 -a $k -lt $p ] && line+="${lines[k]:c:1}" || line+=" "
       done
       printf '%s\n' "$line"
