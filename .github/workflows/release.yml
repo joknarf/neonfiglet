@@ -48,7 +48,7 @@ jobs:
 
       - name: URL and SHA256
         run: |
-          URL=https://github.com/joknarf/neonfiglet/releases/download/${VERSION}/neonfiglet.tar.gz
+          URL="https://github.com/joknarf/neonfiglet/releases/download/${VERSION}/neonfiglet.tar.gz"
           echo "URL=$URL" >>GITHUB_ENV
           SHA256=$(shasum -a 256 neonfiglet.tar.gz | awk '{print $1}')
           echo "SHA256=$SHA256" >> $GITHUB_ENV
