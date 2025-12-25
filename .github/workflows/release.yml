@@ -33,7 +33,7 @@ jobs:
       - name: Build DEB
         run: |
           fpm -a all -s dir -t deb --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet
-          ln -s neonfiglet_$VERSION_all.deb neonfiglet.deb
+          ln -s neonfiglet_${VERSION}_all.deb neonfiglet.deb
 
       - name: Build RPM
         run: |
@@ -123,7 +123,7 @@ jobs:
       - name: Build APK
         run: |
           fpm -a all -s dir  -t apk  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION --url=https://github.com/joknarf/neonfiglet neonfiglet=/bin/neonfiglet
-          ln -s neonfiglet_$VERSION_all.apk neonfiglet.apk
+          ln -s neonfiglet_${VERSION}_all.apk neonfiglet.apk
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
