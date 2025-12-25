@@ -50,7 +50,7 @@ jobs:
             *.rpm
             *.tar.gz
 
-    alpine:
+  alpine:
     name: Alpine (apk)
     runs-on: ubuntu-latest
     container:
