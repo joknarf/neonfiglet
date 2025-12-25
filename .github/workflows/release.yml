@@ -53,6 +53,12 @@ jobs:
           SHA256=$(shasum -a 256 neonfiglet.tar.gz | awk '{print $1}')
           echo "SHA256=$SHA256" >> $GITHUB_ENV
 
+       - name: Debug variables
+         run: |
+           echo "VERSION=$VERSION"
+           echo "URL=$URL"
+           echo "SHA256=$SHA256"
+
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
