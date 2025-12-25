@@ -42,13 +42,18 @@ jobs:
         run: |
           fpm -a all -s dir  -t tar  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
 
+      - name: Build ZIP
+        run: |
+          fpm -a all -s dir  -t zip  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
+
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             *.deb
             *.rpm
-            *.tar.gz
+            *.tar
+            *.zip
 
   alpine:
     name: Alpine (apk)
