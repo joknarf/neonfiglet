@@ -1,0 +1,48 @@
+name: Build and Release Packages
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y ruby ruby-dev build-essential rpm
+          sudo gem install --no-document fpm
+
+      - name: Set version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Build DEB
+        run: |
+          fpm -s dir -t deb \
+            -n myapp \
+            -v $VERSION \
+            --prefix=/usr \
+            myapp=/bin/myapp
+
+      - name: Build RPM
+        run: |
+          fpm -s dir -t rpm \
+            -n myapp \
+            -v $VERSION \
+            --prefix=/usr \
+            myapp=/bin/myapp
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.deb
+            *.rpm
+
