@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -38,10 +38,76 @@ jobs:
         run: |
           fpm -a all -s dir  -t rpm  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
 
+      - name: Build TAR
+        run: |
+          fpm -a all -s dir  -t tar  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
+
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             *.deb
             *.rpm
+            *.tar.gz
+
+    alpine:
+    name: Alpine (apk)
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apk add --no-cache ruby ruby-dev build-base apk-tools tar
+          gem install --no-document fpm
+
+      - name: Set version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          fi
+
+      - name: Build APK
+          fpm -a all -s dir  -t apk  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.apk
+
+  macos:
+    name: macOS (pkg)
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew install ruby
+          sudo gem install --no-document fpm
+
+
+      - name: Set version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          fi
+
+      - name: Build PKG
+          fpm -a all -s dir  -t osxpkg  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.pkg
 
