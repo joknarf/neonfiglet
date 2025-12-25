@@ -28,8 +28,15 @@ Fun banners with animated scroll / rainbow
 
 ## install
 
-Download/install released package asset (rpm/deb/apk/zip...) or just
-
+Use your prefered method:
+```
+brew install joknarf/tools/neonfiglet
+sudo dnf install https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.rpm
+curl =OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.deb && sudo dpkg -i neonfiglet.deb
+curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.apk && sudo apk add --allow-untrusted neonfiglet.apk
+curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.pkg && sudo installer -pkg neonfiglet.pkg -target /
+```
+or just 
 ```
 git clone https://github.com/joknarf/neonfiglet
 ```
