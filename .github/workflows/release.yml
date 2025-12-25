@@ -29,6 +29,9 @@ jobs:
           else
             echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
           fi
+          echo "URL=https://github.com/joknarf/neonfiglet/releases/download/${VERSION}/neonfiglet.tar.gz" >>GITHUB_ENV
+          SHA256=$(shasum -a 256 neonfiglet.tar.gz | awk '{print $1}')
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
 
       - name: Build DEB
         run: |
@@ -45,6 +48,34 @@ jobs:
       - name: Build ZIP
         run: |
           fpm -a all -s dir -t zip --license=MIT --maintainer=joknarf --prefix=.local -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v3
+        with:
+          repository: your-org/homebrew-tools
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update formula
+        run: |
+          FORMULA_FILE=homebrew-tap/Formula/tool.rb
+          sed -i "s|url \".*\"|url \"${URL}\"|" $FORMULA_FILE
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" $FORMULA_FILE
+          sed -i "s|version \".*\"|version \"${VERSION}\"|" $FORMULA_FILE
+
+      - name: Commit & Push
+        run: |
+          cd homebrew-tap
+          git add Formula/tool.rb
+          git commit -m "Update tool formula to $VERSION" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
