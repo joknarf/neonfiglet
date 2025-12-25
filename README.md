@@ -28,6 +28,8 @@ Fun banners with animated scroll / rainbow
 
 ## install
 
+Download/install released package asset (rpm/deb/apk/zip...) or just
+
 ```
 git clone https://github.com/joknarf/neonfiglet
 ```
