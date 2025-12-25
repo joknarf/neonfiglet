@@ -37,7 +37,7 @@ jobs:
       - name: Build RPM
         run: |
           fpm -a all -s dir -t rpm --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet
-          ln -s neonfiglet-$VERSIONi-1.noarch.rpm neonfiglet.rpm
+          ln -s neonfiglet-$VERSION-1.noarch.rpm neonfiglet.rpm
 
       - name: Build TAR
         run: |
