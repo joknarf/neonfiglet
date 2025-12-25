@@ -32,19 +32,19 @@ jobs:
 
       - name: Build DEB
         run: |
-          fpm -a all -s dir  -t deb  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
+          fpm -a all -s dir -t deb --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet
 
       - name: Build RPM
         run: |
-          fpm -a all -s dir  -t rpm  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
+          fpm -a all -s dir -t rpm --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet
 
       - name: Build TAR
         run: |
-          fpm -a all -s dir  -t tar  --license=MIT --maintainer=joknarf --prefix=.local -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet && gzip *.tar
+          fpm -a all -s dir -t tar --license=MIT --maintainer=joknarf --prefix=.local -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet && gzip *.tar
 
       - name: Build ZIP
         run: |
-          fpm -a all -s dir  -t zip  --license=MIT --maintainer=joknarf --prefix=.local -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
+          fpm -a all -s dir -t zip --license=MIT --maintainer=joknarf --prefix=.local -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -79,7 +79,7 @@ jobs:
 
       - name: Build APK
         run: |
-          fpm -a all -s dir  -t apk  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
+          fpm -a all -s dir  -t apk  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION --url=https://github.com/joknarf/neonfiglet neonfiglet=/bin/neonfiglet
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
