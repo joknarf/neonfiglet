@@ -39,15 +39,18 @@ sudo dnf install https://github.com/joknarf/neonfiglet/releases/latest/download/
 ```
 
 ```
-curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.deb && sudo dpkg -i neonfiglet.deb
+curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.deb
+sudo dpkg -i neonfiglet.deb
 ```
 
 ```
-curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.apk && sudo apk add --allow-untrusted neonfiglet.apk
+curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.apk
+sudo apk add --allow-untrusted neonfiglet.apk
 ```
 
 ```
-curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.pkg && sudo installer -pkg neonfiglet.pkg -target /
+curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.pkg
+sudo installer -pkg neonfiglet.pkg -target /
 ```
 
 or just 
