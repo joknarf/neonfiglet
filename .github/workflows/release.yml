@@ -74,8 +74,8 @@ jobs:
       - name: Commit & Push
         run: |
           cd homebrew-tap
-          git add Formula/tool.rb
-          git commit -m "Update tool formula to $VERSION" || echo "No changes to commit"
+          git add Formula/neonfiglet.rb
+          git commit -m "Update neonfiglet formula to $VERSION" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
