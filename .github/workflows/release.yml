@@ -29,9 +29,6 @@ jobs:
           else
             echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
           fi
-          echo "URL=https://github.com/joknarf/neonfiglet/releases/download/${VERSION}/neonfiglet.tar.gz" >>GITHUB_ENV
-          SHA256=$(shasum -a 256 neonfiglet.tar.gz | awk '{print $1}')
-          echo "SHA256=$SHA256" >> $GITHUB_ENV
 
       - name: Build DEB
         run: |
@@ -49,6 +46,11 @@ jobs:
         run: |
           fpm -a all -s dir -t zip --license=MIT --maintainer=joknarf --prefix=.local -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet
 
+      - name: URL and SHA256
+          echo "URL=https://github.com/joknarf/neonfiglet/releases/download/${VERSION}/neonfiglet.tar.gz" >>GITHUB_ENV
+          SHA256=$(shasum -a 256 neonfiglet.tar.gz | awk '{print $1}')
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
@@ -57,7 +59,7 @@ jobs:
       - name: Checkout Homebrew tap
         uses: actions/checkout@v3
         with:
-          repository: your-org/homebrew-tools
+          repository: joknarf/homebrew-tools
           token: ${{ secrets.GITHUB_TOKEN }}
           path: homebrew-tap
 
