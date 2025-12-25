@@ -32,11 +32,11 @@ jobs:
 
       - name: Build DEB
         run: |
-          fpm -s dir  -t deb  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  --prefix=/usr/bin  neonfiglet=/bin/neonfiglet
+          fpm -s dir  -t deb  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
 
       - name: Build RPM
         run: |
-          fpm -s dir  -t rpm  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  --prefix=/usr/bin  neonfiglet=/bin/neonfiglet
+          fpm -s dir  -t rpm  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
