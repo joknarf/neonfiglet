@@ -39,7 +39,7 @@ sudo dnf install https://github.com/joknarf/neonfiglet/releases/latest/download/
 ```
 
 ```
-curl =OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.deb && sudo dpkg -i neonfiglet.deb
+curl -OL https://github.com/joknarf/neonfiglet/releases/latest/download/neonfiglet.deb && sudo dpkg -i neonfiglet.deb
 ```
 
 ```
