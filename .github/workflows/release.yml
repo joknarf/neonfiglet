@@ -73,6 +73,7 @@ jobs:
           fi
 
       - name: Build APK
+        run: |
           fpm -a all -s dir  -t apk  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
 
       - name: Upload to GitHub Release
@@ -93,7 +94,6 @@ jobs:
           brew install ruby
           sudo gem install --no-document fpm
 
-
       - name: Set version
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
@@ -103,6 +103,7 @@ jobs:
           fi
 
       - name: Build PKG
+        run: |
           fpm -a all -s dir  -t osxpkg  --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet  -v $VERSION  neonfiglet=/bin/neonfiglet
 
       - name: Upload to GitHub Release
