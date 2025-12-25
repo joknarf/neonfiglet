@@ -48,7 +48,6 @@ jobs:
 
       - name: URL and SHA256
         run: |
-          echo "URL=https://github.com/joknarf/neonfiglet/releases/download/${VERSION}/neonfiglet.tar.gz" >>GITHUB_ENV
           SHA256=$(shasum -a 256 neonfiglet.tar.gz | awk '{print $1}')
           echo "SHA256=$SHA256" >> $GITHUB_ENV
 
@@ -67,7 +66,6 @@ jobs:
       - name: Update formula
         run: |
           FORMULA_FILE=homebrew-tap/Formula/neonfiglet.rb
-          sed -i "s|url \".*\"|url \"${URL}\"|" $FORMULA_FILE
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" $FORMULA_FILE
           sed -i "s|version \".*\"|version \"${VERSION}\"|" $FORMULA_FILE
 
