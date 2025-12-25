@@ -40,7 +40,7 @@ jobs:
 
       - name: Build TAR
         run: |
-          fpm -a all -s dir -t tar --license=MIT --maintainer=joknarf --prefix=.local -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet && gzip *.tar
+          fpm -a all -s dir -t tar --license=MIT --maintainer=joknarf --prefix=neonfiglet-$VERSION -m joknarf@free.fr --description="Neon Animated Banners" -n neonfiglet -v $VERSION --url=https://github.com/joknarf/neonfliglet neonfiglet=/bin/neonfiglet && gzip *.tar
 
       - name: Build ZIP
         run: |
