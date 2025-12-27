@@ -19,6 +19,7 @@ env:
     -m joknarf@free.fr
     -n ${{ github.event.repository.name }}
     --url=https://github.com/${{ github.repository }}
+    -v ${{ github.event.release.tag_name }}
 
 jobs:
   linux:
@@ -36,21 +37,21 @@ jobs:
 
       - name: Build DEB
         run: |
-          fpm $FPM_BASE -t deb --prefix=/usr --description="$DESC" -v $VERSION $TOOL_PATH=/bin/$TOOL
+          fpm $FPM_BASE -t deb --prefix=/usr --description="$DESC" $TOOL_PATH=/bin/$TOOL
           ln -s ${TOOL}_${VERSION}_all.deb ${TOOL}.deb
 
       - name: Build RPM
         run: |
-          fpm $FPM_BASE -t rpm --prefix=/usr --description="$DESC" -v $VERSION $TOOL_PATH=/bin/$TOOL
+          fpm $FPM_BASE -t rpm --prefix=/usr --description="$DESC" $TOOL_PATH=/bin/$TOOL
           ln -s ${TOOL}-$VERSION-1.noarch.rpm ${TOOL}.rpm
 
       - name: Build TAR
         run: |
-          fpm $FPM_BASE -t tar --prefix=$TOOL-$VERSION --description="$DESC" -v $VERSION $TOOL_PATH=/bin/$TOOL && gzip *.tar
+          fpm $FPM_BASE -t tar --prefix=$TOOL-$VERSION --description="$DESC" $TOOL_PATH=/bin/$TOOL && gzip *.tar
 
       - name: Build ZIP
         run: |
-          fpm $FPM_BASE -t zip --prefix=.local --description="$DESC" -v $VERSION $TOOL_PATH=/bin/$TOOL
+          fpm $FPM_BASE -t zip --prefix=.local --description="$DESC" $TOOL_PATH=/bin/$TOOL
 
       - name: URL and SHA256
         run: |
@@ -118,8 +119,8 @@ jobs:
 
       - name: Build APK
         run: |
-          fpm -a all -s dir -t apk --license=MIT --maintainer=joknarf --prefix=/usr -m joknarf@free.fr --description="$DESC" -n $TOOL -v $VERSION --url=https://github.com/joknarf/$TOOL $TOOL_PATH=/bin/$TOOL
-          ln -s $TOOL_${VERSION}_all.apk $TOOL.apk
+          fpm $FPM_BASE -t apk --prefix=/usr --description="$DESC" $TOOL_PATH=/bin/$TOOL
+          ln -s ${TOOL}_${VERSION}_all.apk ${TOOL}.apk
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -141,7 +142,7 @@ jobs:
 
       - name: Build PKG
         run: |
-          fpm -a all -s dir -t osxpkg --license=MIT --maintainer=joknarf --prefix=/ -m joknarf@free.fr --description="$DESC" -n $TOOL -v $VERSION $TOOL_PATH=/usr/local/bin/$TOOL
+          fpm $FPM_BASE -t osxpkg --prefix=/ --description="$DESC" $TOOL_PATH=/usr/local/bin/$TOOL
           ln -s $TOOL-$VERSION.pkg $TOOL.pkg
 
       - name: Upload to GitHub Release
