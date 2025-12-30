@@ -10,7 +10,6 @@ lolcat() {
       freq = 0.1
       spread = 3.0
       offset = 0
-      theme = "rainbow"
       sat = 1.0
       light = 1.0
       pi = atan2(0,-1)
@@ -155,7 +154,7 @@ lolcat() {
         for(i=1; i<=nchars; i++) {
           if (chars[i] == " ") printf(" ")
           else {
-            @theme(freq, offset+i/spread)
+            '$theme'(freq, offset+i/spread)
             adjust_colors()
             printf("\033[38;2;%d;%d;%dm%s", r, g, b, chars[i])
           }
@@ -447,6 +446,7 @@ themes=(
   red green blue orange yellow magenta cyan
   setred setgreen setblue red2 green2 blue2 bw
 )
+theme='rainbow'
 themes=" ${themes[*]} "
 for opt in "$@";do
   case "$opt" in
