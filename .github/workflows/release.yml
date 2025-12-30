@@ -36,6 +36,11 @@ jobs:
           sudo apt install -y ruby ruby-dev build-essential rpm
           sudo gem install --no-document fpm
 
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Build DEB
         run: |
           BUILD_EPOCH=$(date +%s)
@@ -101,11 +106,6 @@ jobs:
           echo "VERSION=$VERSION"
           echo "URL=$URL"
           echo "SHA256=$SHA256"
-
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Checkout Homebrew tap
         uses: actions/checkout@v3
