@@ -425,6 +425,7 @@ center=true
 right=false
 offinc="-5"
 msg=false
+theme='rainbow'
 while getopts ":t:s:d:f:lrS:Fo:hm" opt; do
   case "$opt" in
     t) timeout="$OPTARG";;
@@ -449,7 +450,6 @@ themes=(
   red green blue orange yellow magenta cyan
   setred setgreen setblue red2 green2 blue2 bw
 )
-theme='rainbow'
 themes=" ${themes[*]} "
 for opt in "$@";do
   case "$opt" in
@@ -480,7 +480,7 @@ if [ "$text" ] ;then
   ! type figlet >/dev/null 2>&1 && do_anim $timeout $delay "$@" <<<"$text" && exit
   figlet -c -w $width "${figargs[@]}" "$text" |do_anim $timeout $delay "$@"
 else
-  #printf '\033[?7l'    # disable line wrapping
+  printf '\033[?7l'    # disable line wrapping
   do_anim $timeout $delay "$@"
   printf '\033[?7h'    # enable line wrapping
 fi
