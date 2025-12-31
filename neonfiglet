@@ -3,9 +3,12 @@
 # Copyright (C) 2025 joknarf
 # License: MIT (see LICENSE file)
 # Author: joknarf
+awk=awk
+type gawk >/dev/null && awk=gawk
+type mawk >/dev/null && mawk=gawk
 
 lolcat() {
-  awk '
+  $awk '
     BEGIN {
       freq = 0.1
       spread = 3.0
