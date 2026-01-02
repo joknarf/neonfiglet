@@ -389,6 +389,7 @@ EOF
 usage() {
   center=false
   offinc="-2"
+  theme='rainbow'
   echo "usage: ${0##*/} [-t <tmoutsec>] [-s <sleepsec>] [-S <dir>] [-F] [figletopts] [<message>] [lolcatopts]
 
     -S <dir>       : initial scroll direction (u, U, d, l, r, u2, write, none)
@@ -444,6 +445,7 @@ while getopts ":t:s:d:f:lrS:Fo:hm" opt; do
 done
 shift $((OPTIND - 1))
 text="$1"
+[ "$text" = '-' ] && text=''
 shift
 themes=(
   rainbow gradient pastel metal
