@@ -4,8 +4,8 @@
 # License: MIT (see LICENSE file)
 # Author: joknarf
 awk=awk
-type gawk >/dev/null && awk=gawk
-type mawk >/dev/null && mawk=gawk
+type gawk >/dev/null 2>&1 && awk=gawk
+type mawk >/dev/null 2>&1 && mawk=gawk
 
 lolcat() {
   $awk '
