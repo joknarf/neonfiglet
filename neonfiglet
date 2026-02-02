@@ -7,6 +7,19 @@ awk=awk
 type gawk >/dev/null 2>&1 && awk=gawk
 type mawk >/dev/null 2>&1 && mawk=gawk
 
+sleep() {
+  read -rsn1 -t $1 </dev/tty
+}
+_tput() {
+  case "$1" in
+    # -------- Cursor movement --------
+    cuu) printf '\e[%dA' "${2:-1}" ;;
+    cud) printf '\e[%dB' "${2:-1}" ;;
+    # -------- Cursor visibility --------
+    civis) printf '\e[?25l' ;;
+    cnorm) printf '\e[?25h' ;;
+  esac
+}
 lolcat() {
   $awk '
     BEGIN {
@@ -217,11 +230,11 @@ print_cr() {
 
 do_scroll_down() {
   print_cr $len
-  tput cuu $len
+  _tput cuu $len
   for ((i=1;i<=$len;i++)) ;do
     printf "%s\n" "${lines[@]:$((len-i))}" |lolc "$@"
     off+=$offinc
-    tput cuu $i
+    _tput cuu $i
     sleep $delay
   done
 }
@@ -229,12 +242,12 @@ do_scroll_down() {
 do_scroll_up() {
   print_cr $len
   for ((i=1;i<=$len;i++)) ;do
-    tput cuu $i
+    _tput cuu $i
     printf "%s\n" "${lines[@]:0:$i}" |lolc "$@"
     off+=$offinc
     sleep $delay
   done
-  tput cuu $len
+  _tput cuu $len
 }
 
 # Column-by-column staggered reveal during scroll-up
@@ -251,7 +264,7 @@ do_scroll_up2() {
   total=$((ngroups + len - 1))
 
   for ((frame=0; frame<total; frame++)); do
-    tput cuu $len
+    _tput cuu $len
     for ((r=0; r<len; r++)); do
       line="$minsp"
       for ((c=min; c<sl; c++)); do
@@ -265,7 +278,7 @@ do_scroll_up2() {
     off+=$offinc
     sleep $delay
   done
-  tput cuu $len
+  _tput cuu $len
 }
 
 do_scroll_right() {
@@ -274,7 +287,7 @@ do_scroll_right() {
     chars=${chars// /?}
     printf "%s\n" "${lines[@]/#$chars/}" |lolc "$@"
     off+=$offinc
-    tput cuu $len
+    _tput cuu $len
     sleep $delay
   done
 }
@@ -301,7 +314,7 @@ do_scroll_left() {
     chars=${spaces// /?}
     printf "%s\n" "${l[@]/%$chars/}" |lolc "$@"
     off+=$offinc
-    tput cuu $len
+    _tput cuu $len
     sleep $delay
   done
 }
@@ -313,7 +326,7 @@ do_write() {
     chars=${chars// /?}
     printf "%s\n" "${lines[@]/%$chars/}" |lolc "$@"
     off+=$offinc
-    tput cuu $len
+    _tput cuu $len
     sleep $delay
   done
 }
@@ -338,9 +351,9 @@ do_anim() {
   $center && align_center
   $right && align_right
   len="${#lines[@]}"
-  trap 'tput cud $len;exit' INT # move cursor to bottom left
+  trap '_tput cud $len;exit' INT # move cursor to bottom left
   stty -echo </dev/tty          # disable echo
-  tput civis                    # hide cursor
+  _tput civis                    # hide cursor
   now
   end=$(($now+$timeout))
   case "$scroll" in
@@ -356,7 +369,7 @@ do_anim() {
   now
   while [ $now -lt $end ];do   # anim colors changing rainbow offset
     sleep $delay
-    tput cuu $len              # cursor up nb logo lines
+    _tput cuu $len              # cursor up nb logo lines
     printf '%s\n' "${lines[@]}" |lolc "$@"
     off+=$offinc
     now
@@ -395,7 +408,7 @@ usage() {
     -S <dir>       : initial scroll direction (u, U, d, l, r, u2, write, none)
     -F             : display <message> with all fonts in <fontdir>
     -t <tmoutsec>  : animation duration (default 2.0)
-    -s <sleepsec>  : sleep between frales (default 0.07)
+    -s <sleepsec>  : sleep between frames (default 0.07)
     -o <offsetinc> : rainbow anim offset increment (default 5)
     -m             : display figlet message with classic Barefoot Guy
     <message>      : message to display (if not uses stdin w/o figlet)
@@ -415,7 +428,7 @@ usage() {
   exit 1
 }  
 _stty_ori=$(stty -g </dev/tty)  # save stty settings
-trap 'stty $_stty_ori </dev/tty;tput cnorm' EXIT   # restore cursor/tty at exit
+trap 'stty $_stty_ori </dev/tty;_tput cnorm' EXIT   # restore cursor/tty at exit
 timeout=2.0
 delay=0.07
 allfonts=false
