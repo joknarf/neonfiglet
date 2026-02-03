@@ -18,6 +18,14 @@ _tput() {
     # -------- Cursor visibility --------
     civis) printf '\e[?25l' ;;
     cnorm) printf '\e[?25h' ;;
+    lines)
+      [ ! "$LINES" ] && LINES=$(stty size) && LINES=${LINES% *}
+      printf '%s\n' "${LINES:-24}"
+      ;;
+    cols)
+      [ ! "$COLUMNS" ] && COLUMNS=$(stty size) && COLUMNS=${COLUMNS#* }
+      printf '%s\n' "${COLUMNS:-80}"
+      ;;
   esac
 }
 lolcat() {
@@ -433,7 +441,7 @@ timeout=2.0
 delay=0.07
 allfonts=false
 scroll=u
-width=$(tput cols)
+width=$(_tput cols)
 figargs=()
 center=true
 right=false
