@@ -25,7 +25,6 @@ Fun banners with animated scroll / rainbow
 
 ## pre-requisite
 
-* tput (ncurses)
 * figlet (only to print message with figlet/toilet font)
 
 ## install
